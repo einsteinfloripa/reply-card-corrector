@@ -1,4 +1,4 @@
-cd ..import cv2 as cv
+import cv2 as cv
 import numpy as np
 import csv
 import os
@@ -314,7 +314,7 @@ def find_squares(img):
     kernel = np.ones((20, 20), np.uint8)
     mask = cv.erode(mask, kernel)
 
-    _, contours, hierarchy = cv.findContours(mask,
+    contours, hierarchy = cv.findContours(mask,
                                              cv.RETR_TREE,
                                              cv.CHAIN_APPROX_SIMPLE)
 
@@ -536,7 +536,7 @@ def correct_image_angle(img):
     @return img on the right orientation
     """
     mask = find_binary_mask(img, [0, 0, 0], [180, 180, 180])
-    _, contours, hierarchy = cv.findContours(mask,
+    contours, hierarchy = cv.findContours(mask,
                                              cv.RETR_TREE,
                                              cv.CHAIN_APPROX_SIMPLE)
 

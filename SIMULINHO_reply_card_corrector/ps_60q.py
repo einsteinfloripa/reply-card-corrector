@@ -5,7 +5,7 @@ from functions import *
 
 
 def run():
-    app_folder = 'SIMULINHO_reply_card_corrector'
+    app_folder = 'SIMULINHO_reply_card_corrector/'
     failures_path = app_folder + 'results/failures/'
     successes_path = app_folder + 'results/successes/'
     samples_path = app_folder + 'scans/'
