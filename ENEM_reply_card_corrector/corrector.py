@@ -25,8 +25,8 @@ def run():
 
     # [0] - name
     # [1] - cpf
-    # [2] - course
-    # [3] - lang
+    # [2] - lang
+    # [3] - course
     # [4] - quota
     subs_table = list()
     with open(subscribers_table_path, 'r', encoding="utf-8") as f:
@@ -36,10 +36,11 @@ def run():
 
     for sub_row in subs_table:
         tmp = dict()
+        print(sub_row)
         tmp['name'] = sub_row[0]
         tmp['cpf'] = sub_row[1]
-        tmp['course'] = sub_row[2]
-        tmp['lang'] = sub_row[3]
+        tmp['lang'] = sub_row[2]
+        tmp['course'] = sub_row[3]
         tmp['quota'] = sub_row[4]
 
         tmp['answers_d1'] = [

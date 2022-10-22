@@ -172,9 +172,9 @@ def check_square(mask, pt):
     sample = mask[pt.y - 3: pt.y + 3, pt.x - 3: pt.x + 3]
     h, w = sample.shape
 
-    # if 40% of the square is white, it will be recognized as
+    # if 60% of the square is white, it will be recognized as
     # filled
-    if np.count_nonzero(sample) > h*w*4/10:
+    if np.count_nonzero(sample) > h*w*6/10:
         return True
     else:
         return False

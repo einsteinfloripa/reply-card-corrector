@@ -4,6 +4,8 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+gerar_enem = "python3 ENEM_reply_card_corrector/__main__.py"
 
 [packages]
 
