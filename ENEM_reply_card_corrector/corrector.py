@@ -18,7 +18,7 @@ def run():
     students = list()
 
     answers_table = list()
-    with open(answers_table_path, 'r', encoding="latin-1") as f:
+    with open(answers_table_path, 'r', encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             answers_table.append(row)
@@ -29,7 +29,7 @@ def run():
     # [3] - lang
     # [4] - quota
     subs_table = list()
-    with open(subscribers_table_path, 'r', encoding="latin-1") as f:
+    with open(subscribers_table_path, 'r', encoding="utf-8") as f:
         reader = csv.reader(f)
         for row in reader:
             subs_table.append(row)
@@ -74,7 +74,7 @@ def run():
     keys1.sort()
     keys2.sort()
 
-    with open(output_data_path, 'a', encoding="latin-1") as f:
+    with open(output_data_path, 'a', encoding="utf-8") as f:
         writer = csv.writer(f)
         for student in students:
             responses = list()

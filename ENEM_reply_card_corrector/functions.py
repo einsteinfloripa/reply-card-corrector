@@ -66,9 +66,9 @@ def check_square(mask, pt):
     sample = mask[pt.y - 3: pt.y + 3, pt.x - 3: pt.x + 3]
     h, w = sample.shape
 
-    # if 40% of the square is white, it will be recognized as
+    # if 60% of the square is white, it will be recognized as
     # filled
-    if np.count_nonzero(sample) > h*w*4/10:
+    if np.count_nonzero(sample) > h*w*6/10:
         return True
     else:
         return False
@@ -239,8 +239,7 @@ def find_squares(img):
               "\ntop_right len: ", len(top_right_cnts),
               "\nbot_right len: ", len(bot_right_cnts),
               "\nbot_left len: ", len(bot_left_cnts))
-        show_img(cv.drawContours(img, four_pts_cnts,
-                                 -1, (0, 0, 255), 2))
+        #show_img(cv.drawContours(img, four_pts_cnts,-1, (0, 0, 255), 2))
 
     # Order list from biggest to smallest, to take only the first
     # Expecting that only the biggest square that is inside the range

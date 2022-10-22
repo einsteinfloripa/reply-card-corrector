@@ -40,7 +40,7 @@ def run():
 
         cpf_positions = get_cpf_pos()
         cpf, logs_cpf = read_cpf(warped, cpf_positions)
-
+        
         day = check_day(warped)
 
         # draw squares on the points to verify possible errors
