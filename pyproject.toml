@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "reply-card-corrector"
+version = "1.0.0"
+description = "Leitor de cartão-respo"
+authors = ["Vale do Silicio <vale@einsteinfloripa.com.br>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "reply_card_corrector"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^1.5.3"
+opencv-python = "^4.7.0.68"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
