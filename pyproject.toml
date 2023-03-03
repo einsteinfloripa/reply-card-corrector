@@ -11,6 +11,8 @@ packages = [{include = "reply_card_corrector"}]
 python = "^3.10"
 pandas = "^1.5.3"
 opencv-python = "^4.7.0.68"
+imutils = "^0.5.4"
+svglib = "^1.5.1"
 
 
 [build-system]
