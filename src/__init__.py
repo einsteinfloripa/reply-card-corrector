@@ -1,93 +1,90 @@
 import pandas as pd
 import numpy as np
 import cv2 as cv
-from leitura_e_escrita.leitor import get_foto
+from leitura_e_escrita.leitor import get_foto, get_scans
+from leitura_e_escrita.escritor import escrever_csv
 from auxilio.template import (get_posicao_respostas_template,
                              get_template)
 from auxilio.funcoes_auxiliares import (get_novas_posicoes,
                                         get_img,
                                         get_respostas,
-                                        get_posicao_cpf_template)
+                                        get_posicao_cpf_template,
+                                        get_novas_posicoes_cpf,
+                                        get_cpf)
+from auxilio.path import (ROOT_PATH, join_paths)
 
-# ## jogar para outro lugar
-# from svglib.svglib import svg2rlg
-# from reportlab.graphics import renderPM
+from auxilio.variaveis import nome_col_df_respostas
 
-# drawing = svg2rlg("/home/matos/Einstein/Vale/reply-card-corrector/reply_card_models/response_card_model_v4_SIMULINHO.svg")
-# renderPM.drawToFile(drawing, "reply_card_models/modelo_SIMULINHO.png", fmt='PNG',)
+## Temporário
+# TODO: Alterar posteriormente esse "import"
+paths_pastas = [join_paths(ROOT_PATH, "scans", "1. Matheus (1 a 84)"),
+                join_paths(ROOT_PATH, "scans", "2. Harumi (85 a 168)"),
+                join_paths(ROOT_PATH,  "scans", "3. Laura (169 a 254)")]
 
+template_path = join_paths(ROOT_PATH, "reply_card_models", "SIMULINHO.jpg")
 
-#img_ = get_foto("/home/matos/Einstein/Vale/reply-card-corrector/scans/scan0003.pdf_1.jpg")
-#img_ = get_foto("/home/matos/Einstein/Vale/reply-card-corrector/reply_card_models/SIMULINHO.jpg")
-template_ = get_foto("/home/matos/Einstein/Vale/reply-card-corrector/reply_card_models/SIMULINHO.jpg")
-img_ = get_foto("/home/matos/Einstein/Vale/reply-card-corrector/scans/1. Matheus (1 a 84)/3.jpg")
-#template_ = get_foto("/home/matos/Einstein/Vale/reply-card-corrector/scans/1. Matheus (1 a 84)/4.jpg")
-
-#template
-template = get_template(template_)
+# Template
+template_arquivo = get_foto(template_path)
+template = get_template(template_arquivo)
 posicao_respostas_template, raio = get_posicao_respostas_template(template)
-posicao_cpf, raio = get_posicao_cpf_template(template)
+posicao_cpf, raio_cpf = get_posicao_cpf_template(template)
+lista_respostas_final = []
 
-img = get_img(img_, template_)
-novas_posicoes = get_novas_posicoes(template, img, posicao_respostas_template, raio)
+# Scans
+for pasta in paths_pastas:
+    lista_scans, lista_nomes_arquivos = get_scans(pasta)
 
-#lista_verificacao = get_respostas()
+    for scan, nome_arquivo in zip(lista_scans, lista_nomes_arquivos):
 
-### remover
+        lista_respostas_aluno = []
+        img = get_img(scan)
 
-cinza = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-borrada = cv.GaussianBlur(cinza, (9, 9), 0)
-# #divide = cv.divide(cinza, borrada, scale=255)
+        nova_posicoes_cpf = get_novas_posicoes_cpf(template, img, posicao_cpf, raio_cpf)
+        novas_posicoes = get_novas_posicoes(template, img, posicao_respostas_template, raio)
 
-# # threshold
-thresh = cv.threshold(borrada, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
-# adapt_thresh = cv.adaptiveThreshold(cinza, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 5, 2)
-# # apply morphology
-kernel = cv.getStructuringElement(cv.MORPH_RECT, (15,15))
-morph = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
-img3 = morph
+        print("------------------------")
 
-# cv.namedWindow("img2", cv.WINDOW_KEEPRATIO)
-#cv.namedWindow("threshold", cv.WINDOW_KEEPRATIO)
-# cv.namedWindow("morph", cv.WINDOW_KEEPRATIO)
-# # cv.namedWindow("divide", cv.WINDOW_KEEPRATIO)
-# # cv.namedWindow("borrada", cv.WINDOW_KEEPRATIO)
-# cv.imshow("img2", img_)
-#cv.imshow("threshold", thresh)
-# cv.imshow("morph", morph)
-# cv.imshow("borrada", borrada)
+        # CPF
+        cinza1 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        borrada1 = cv.GaussianBlur(cinza1, (9, 9), 0)
+        thresh1 = cv.threshold(borrada1, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
+        kernel1 = cv.getStructuringElement(cv.MORPH_ELLIPSE, (17,17))
+        morph1 = cv.morphologyEx(thresh1, cv.MORPH_OPEN, kernel1)
+        img_cpf = morph1
 
+        lista_cpf_aluno = get_cpf(img_cpf, nova_posicoes_cpf, raio_cpf)
+        cpf_aluno = ''.join([digito for digito in lista_cpf_aluno])
 
-###
-cv.namedWindow("mask1", cv.WINDOW_KEEPRATIO)
-cv.namedWindow("IMG", cv.WINDOW_KEEPRATIO)
-# cv.namedWindow("AREA ATIVA", cv.WINDOW_KEEPRATIO)
-cv.namedWindow("IMG ANTES", cv.WINDOW_KEEPRATIO)
-cv.namedWindow("MASCARA", cv.WINDOW_KEEPRATIO)
-get_respostas(img3, novas_posicoes, raio)
+        # RESPOSTAS
+        cinza = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        borrada = cv.GaussianBlur(cinza, (9, 9), 0)
+        thresh = cv.threshold(borrada, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (15,15))
+        morph = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
+        img_respostas = morph
 
-
+        lista_respostas_aluno.append(cpf_aluno)
+        lista_respostas_aluno.extend(get_respostas(img_respostas, novas_posicoes, raio))
+        lista_respostas_final.append(lista_respostas_aluno)
 
 
-# for linha in posicao_respostas_template:
-#     nova_posicao_linha = []
-#     for coordenada in linha:
-#         nova_posicao = new_coordinates_after_resize_img(template.shape[0:2], folha_cortada.shape[0:2], coordenada)
-#         nova_posicao_linha.append(nova_posicao)
-#         ### DEBUG
-#         cv.circle(folha_cortada, nova_posicao, raio-2, (320, 159, 22), 1)
-#         ### DEBUG
-#     novas_posicoes.append(nova_posicao_linha)
+        ## DEBUG
+        print(nome_arquivo)
+        print(lista_respostas_aluno)
 
+        # cv.namedWindow("Final", cv.WINDOW_KEEPRATIO)
+        # cv.namedWindow("Borrada", cv.WINDOW_KEEPRATIO)
+        # cv.namedWindow("Thresh", cv.WINDOW_KEEPRATIO)
+        # cv.namedWindow("", cv.WINDOW_KEEPRATIO)
+        # cv.imshow("Final", morph)
+        # cv.imshow("Borrada", borrada)
+        # cv.imshow("Thresh", thresh)
+        # cv.imshow("RESPOSTAS", morph)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
 
-# for c in contornos_alternativas:
-#     print(c)
-#     print(c[0])
-#     # c[0].x += x1
-#     # c[0].y += y1
-#     cv.drawContours(folha_cortada, c, -1, (0,0,255), 1)
+        ## DEBUG
 
-cv.namedWindow("FOLHA CORTADA", cv.WINDOW_KEEPRATIO)
-cv.imshow("FOLHA CORTADA",  img)
-cv.waitKey(0)
-cv.destroyAllWindows()
+# TODO Melhorar implementação
+df_final = pd.DataFrame(lista_respostas_final, columns = nome_col_df_respostas)
+escrever_csv(df_final, join_paths(ROOT_PATH, "output", "respostas-alunos-teste.csv"))
