@@ -33,14 +33,3 @@ def coordenadas(img_arg = None, caminho = None):
         if k == 27:
             break
     cv.destroyAllWindows()
-
-
-
-
-
-# ## jogar para outro lugar
-# from svglib.svglib import svg2rlg
-# from reportlab.graphics import renderPM
-
-# drawing = svg2rlg("/home/matos/Einstein/Vale/reply-card-corrector/reply_card_models/response_card_model_v4_SIMULINHO.svg")
-# renderPM.drawToFile(drawing, "reply_card_models/modelo_SIMULINHO.png", fmt='PNG',)

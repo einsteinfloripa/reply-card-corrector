@@ -8,7 +8,7 @@ from auxilio.variaveis import (dicionario_simulinho as ds,
 
 
 def sort_contornos(lista_contornos, alternativas = ds["Caixas"]["Alternativas"], cpf = False):
-    lista_final =[]
+    lista_final = []
 
     # Região CPF
     if cpf == True:
@@ -79,17 +79,6 @@ def new_coordinates_after_resize_img(original_size, new_size, original_coordinat
     x, y = int(xy[0]), int(xy[1])
     return (x, y)
 
-# TODO: Remover ou Atualizar - Atualmente não utilizado
-def get_centro_e_raio_contorno(c):
-    x1 = 55 # Remover Depois
-    x2 = 353
-    y1 = 686
-    y2 = 1043
-    (x, y), raio = cv.minEnclosingCircle(c)
-    center = (int(x+x1), int(y+y1))
-    raio = int(raio)
-    return center, raio
-
 def get_novas_posicoes(template, folha, posicoes, raio):
 
     novas_posicoes = []
@@ -99,13 +88,9 @@ def get_novas_posicoes(template, folha, posicoes, raio):
             for coordenada in linha:
                     nova_posicao = new_coordinates_after_resize_img(template.shape[0:2], folha.shape[0:2], coordenada)
                     nova_posicao_linha.append(nova_posicao)
-                    ### DEBUG
-                    # cv.circle(folha, nova_posicao, raio-2, (320, 159, 22), 1)
-                    ### DEBUG
             novas_posicoes.append(nova_posicao_linha)
 
     return novas_posicoes
-
 
 def verificar_circulo(img, mask, coordenada):
     sample = mask[coordenada[1] - 3: coordenada[1] + 3, coordenada[0] - 3: coordenada[0] + 3]
@@ -117,19 +102,9 @@ def verificar_circulo(img, mask, coordenada):
         #print("NÃO") # debug
         return False
 
-# TODO: Remover ou atualizar - Atualmente não utilizado
-def verificar_alternativa(img, mask, coordenada, ):
-    pass
-
 def get_respostas(img1, lista_posicoes, raio):
     img = img1.copy()
     lista_respostas = []
-    
-    ### DEBUG
-    # mask = np.zeros(img.shape[:2], dtype=np.uint8)
-    # img = cv.bitwise_not(img)
-    # cv.imshow("IMG ANTES", img)
-    ### DEBUG
 
     for linha in lista_posicoes:
         lista_resposta_alternativa = []
@@ -148,14 +123,6 @@ def get_respostas(img1, lista_posicoes, raio):
             resposta = alternativas[index]
             lista_respostas.append(resposta)
 
-            ### DEBUG
-            # cv.namedWindow("IMG", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("IMG", img)
-            # #cv.imshow("MASCARA", masked)
-            # cv.waitKey(0)
-            # cv.destroyAllWindows()
-            ### DEBUG
-
     return lista_respostas
 
 
@@ -163,30 +130,9 @@ def get_respostas(img1, lista_posicoes, raio):
 def get_img(img_, template):
     cinza = cv.cvtColor(img_, cv.COLOR_BGR2GRAY)
     borrada = cv.GaussianBlur(cinza, (9, 9), 0)
-    # divide = cv.divide(cinza, borrada, scale=255)
-
-    # threshold
     thresh = cv.threshold(borrada, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
-    # adapt_thresh = cv.adaptiveThreshold(cinza, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 5, 2)
-    # apply morphology
     kernel = cv.getStructuringElement(cv.MORPH_RECT, (5,5))
     morph = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
-
-
-    #### DEBUG
-    # cv.namedWindow("GET IMAGE", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("threshold111", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("morph111", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("divide", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("borrada", cv.WINDOW_KEEPRATIO)
-    # cv.imshow("GET IMAGE", img_)
-    # cv.imshow("threshold111", thresh)
-    # cv.imshow("morph111", morph)
-    # cv.imshow("borrada", borrada)
-    # cv.imshow("divide", divide)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
-    #### DEBUG
 
     cnts, _ = cv.findContours(morph, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     cordenadas = []
@@ -200,18 +146,12 @@ def get_img(img_, template):
         # Filtra para selecionar apenas os quadrados pretos das pontas
         if (len(approx) == 4) and (0.9 <= (w / h) <= 1.1) and (area_rect > 100):
 
-            ### DEBUG
-            # print(area_rect)
-            # print(area_rect, approx)
-            # print(c)
-            ### DEBUG
-
             # Centroide
             M = cv.moments(c)
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
 
-            ### (DEBUG) Desenho rect + centro
+            # (DEBUG) Desenho rect + centro
             cv.rectangle(img_,(x,y),(x+w,y+h),(36,255,12),1)
             cv.circle(img_, (cX, cY), 10, (320, 159, 22), 1)
 
@@ -234,62 +174,30 @@ def get_posicao_cpf_template(template_alinhado):
     borrada = cv.GaussianBlur(cinza, (9, 9), 0)
     divide = cv.divide(cinza, borrada, scale=255)
     adapt_thresh = cv.adaptiveThreshold(divide, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 15, 2)
-    kernel1 = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3,3))
 
-    # box2 = morph[645:984, 15:230]
-    #         x1, y1  x2, y2  ->  y1, y2    x1, x2
-    # template 55:686 353:1043 -> [686:1043, 55:353]
     cnts, _ = cv.findContours(adapt_thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-    ### DEBUG
-    # cv.namedWindow("threshold-CPF", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("morph1-CPF", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("morph2-TEMPLATE", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("divide-CPF", cv.WINDOW_KEEPRATIO)
-    # cv.namedWindow("borrada-CPF", cv.WINDOW_KEEPRATIO)
-    # cv.imshow("threshold-CPF", adapt_thresh)
-    # cv.imshow("morph1-CPF", morph)
-    # cv.imshow("morph2-TEMPLATE", morph2)
-    # cv.imshow("divide-CPF", divide)
-    # cv.imshow("borrada-CPF", borrada)
-    ### DEBUG
-
     for c in cnts:
 
         peri = cv.arcLength(c, True)
-        approx = cv.approxPolyDP(c, 0.01 * peri, True)
+        # approx = cv.approxPolyDP(c, 0.01 * peri, True)
         area = cv.contourArea(c)
 
         ### Arrumar aqui
         (x, y), raio = cv.minEnclosingCircle(c)
-        # print(area)
-        # print(raio)
 
         if (300 < area < 500) and raio < 15:
 
-            ### DEBUG
             centro = (int(x+posicao_cpf[2]), int(y+posicao_cpf[0]))
             raio = int(raio)
-            # print(raio)
-            # print(centro)
-            # print(area)
-            # cv.circle(folha, centro, raio, (0, 255, 100), 1)
-            # cv.drawContours(folha2, c, -1, (0,0,255), 1)
-            # posicao.append(center)
-            # print("CONTORNOS: ", len(contornos))
             lista_posicoes.append(centro)
-            ### DEBUG
+
 
     lista_posicoes = sort_contornos(lista_posicoes, cpf = True)
     lista_posicoes_final.append(lista_posicoes)
 
-    ### DEBUG
-    # cv.namedWindow("CPF", cv.WINDOW_KEEPRATIO)
-    # cv.imshow("CPF", folha2)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
-
-    #### RETORNA RAIO, USANDO RAIO 11 PARA TESTAR
+    # TODO: Definir se o valor para o raio será um número pré-determinado ou não 
+    # Usando raio = 11
+    # return lista_posicoes_final, raio
     return lista_posicoes_final, 11
 
 
@@ -300,52 +208,27 @@ def get_novas_posicoes_cpf(template, img, posicao_cpf, raio_cpf):
         for coluna in caixa:
             nova_posicao_coluna = []
             for digito in coluna:
-                # print(digito)
                 nova_posicao = new_coordinates_after_resize_img(template.shape[0:2], img.shape[0:2], digito)
                 nova_posicao_coluna.append(nova_posicao)
-                ### DEBUG
-                # cv.circle(folha, nova_posicao, raio_cpf-2, (320, 159, 22), 1)
-                ### DEBUG
 
             novas_posicoes_cpf.append(nova_posicao_coluna)
 
-    ### REMOVER
-    # cv.namedWindow("CPF-GETCPF", cv.WINDOW_KEEPRATIO)
-    # cv.imshow("CPF-GETCPF", folha)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
     return novas_posicoes_cpf
 
 def get_cpf(img1, lista_posicoes, raio):
     img = img1.copy()
     cpf_aluno = []
 
-    ## DEBUG
-    # mask = np.zeros(img.shape[:2], dtype=np.uint8)
-    # img = cv.bitwise_not(img)
-    # cv.imshow("IMG ANTES", img)
-    ## DEBUG
 
     for coluna in lista_posicoes:
         lista_digito_cpf = []
-        # print(coluna, "COLUNA")
         for coordenada in coluna:
-            # cv.namedWindow("CPF-ANTES", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("CPF-ANTES", img)
             mask = np.zeros(img.shape[:2], dtype=np.uint8)
             mask = cv.circle(mask, coordenada, raio-2, 255, -1)
             masked = cv.bitwise_and(img, img, mask = mask)
             verificacao = verificar_circulo(img, masked, coordenada)
             lista_digito_cpf.append(verificacao)
 
-            ### DEBUG
-            # cv.namedWindow("CPF-LEITURA", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("CPF-LEITURA", masked)
-            # cv.waitKey(0)
-            # cv.destroyAllWindows()
-            ### DEBUG
-
-        # print(lista_digito_cpf, "AQUI")
         if True in lista_digito_cpf:
             index = lista_digito_cpf.index(True)
             numero = cpf_digitos[index]
@@ -354,10 +237,4 @@ def get_cpf(img1, lista_posicoes, raio):
         cpf_aluno.append(numero)
 
     return cpf_aluno
-
-
-
-
-
-
 

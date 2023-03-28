@@ -1,5 +1,4 @@
 from pathlib import Path  
-import pandas as pd
 
 def escrever_csv(df, path):
     filepath = Path(path)

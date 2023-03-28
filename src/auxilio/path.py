@@ -2,8 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-# Constatntes
-# .../corretor-simulados
+# Constantes
 def get_root_path():
 
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') :

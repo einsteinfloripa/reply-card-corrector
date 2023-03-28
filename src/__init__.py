@@ -12,7 +12,6 @@ from auxilio.funcoes_auxiliares import (get_novas_posicoes,
                                         get_novas_posicoes_cpf,
                                         get_cpf)
 from auxilio.path import (ROOT_PATH, join_paths)
-
 from auxilio.variaveis import nome_col_df_respostas
 
 ## Temporário
@@ -42,8 +41,6 @@ for pasta in paths_pastas:
         nova_posicoes_cpf = get_novas_posicoes_cpf(template, img, posicao_cpf, raio_cpf)
         novas_posicoes = get_novas_posicoes(template, img, posicao_respostas_template, raio)
 
-        print("------------------------")
-
         # CPF
         cinza1 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         borrada1 = cv.GaussianBlur(cinza1, (9, 9), 0)
@@ -67,23 +64,6 @@ for pasta in paths_pastas:
         lista_respostas_aluno.extend(get_respostas(img_respostas, novas_posicoes, raio))
         lista_respostas_final.append(lista_respostas_aluno)
 
-
-        ## DEBUG
-        print(nome_arquivo)
-        print(lista_respostas_aluno)
-
-        # cv.namedWindow("Final", cv.WINDOW_KEEPRATIO)
-        # cv.namedWindow("Borrada", cv.WINDOW_KEEPRATIO)
-        # cv.namedWindow("Thresh", cv.WINDOW_KEEPRATIO)
-        # cv.namedWindow("", cv.WINDOW_KEEPRATIO)
-        # cv.imshow("Final", morph)
-        # cv.imshow("Borrada", borrada)
-        # cv.imshow("Thresh", thresh)
-        # cv.imshow("RESPOSTAS", morph)
-        # cv.waitKey(0)
-        # cv.destroyAllWindows()
-
-        ## DEBUG
 
 # TODO Melhorar implementação
 df_final = pd.DataFrame(lista_respostas_final, columns = nome_col_df_respostas)
