@@ -14,18 +14,18 @@ def get_template(template_):
     divide = cv.divide(cinza, borrada, scale=255)
     thresh = cv.threshold(divide, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
 
-    cnts, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    for c in cnts:
+    contornos, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    for contorno in contornos:
         # Bounding Rect e medidas (posiX, posiY, Largura, Altura)
-        x,y,w,h = cv.boundingRect(c)
+        x,y,w,h = cv.boundingRect(contorno)
         area_rect = w*h 
-        approx = cv.approxPolyDP(c, 0.01*cv.arcLength(c, True),True)
+        approx = cv.approxPolyDP(contorno, 0.01*cv.arcLength(c, True),True)
 
         # Filtra para selecionar apenas os quadrados pretos das pontas
         if (len(approx) == 4) and (0.9 <= (w / h) <= 1.1) and (area_rect > 600):
 
             # Centroide
-            M = cv.moments(c)
+            M = cv.moments(contorno)
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
 
@@ -53,16 +53,16 @@ def get_posicao_respostas_template(folha_alinhada):
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (7,7))
         morph = cv.morphologyEx(adapt_thresh, cv.MORPH_CLOSE, kernel)
 
-        cnts, _ = cv.findContours(morph, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        for c in cnts:
+        contornos, _ = cv.findContours(morph, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        for contorno in contornos:
 
-            peri = cv.arcLength(c, True)
-            approx = cv.approxPolyDP(c, 0.01 * peri, True)
-            area = cv.contourArea(c)
+            peri = cv.arcLength(contorno, True)
+            approx = cv.approxPolyDP(contorno, 0.01 * peri, True)
+            area = cv.contourArea(contorno)
 
             if (len(approx) > 5) and (len(approx) < 30) and (300 < area < 500) and raio < 15:
 
-                (x, y), raio = cv.minEnclosingCircle(c)
+                (x, y), raio = cv.minEnclosingCircle(contorno)
                 centro = (int(x+pct1[caixa][2]), int(y+pct1[caixa][0]))
                 raio = int(raio)
 

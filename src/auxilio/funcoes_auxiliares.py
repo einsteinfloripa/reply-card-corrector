@@ -136,15 +136,14 @@ def get_img(img_, template):
     kernel = cv.getStructuringElement(cv.MORPH_RECT, (5,5))
     morph = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
 
-    cnts, _ = cv.findContours(morph, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    contornos, _ = cv.findContours(morph, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     cordenadas = []
 
-    for c in cnts:
+    for contorno in contornos:
         # Bounding Rect e medidas (posiX, posiY, Largura, Altura)
         x,y,w,h = cv.boundingRect(c)
         area_rect = w*h 
-        approx = cv.approxPolyDP(c, 0.01*cv.arcLength(c, True), True)
-
+        approx = cv.approxPolyDP(c, 0.01*cv.arcLength(contorno, True), True)
         # Filtra para selecionar apenas os quadrados pretos das pontas
         if (len(approx) == 4) and (0.9 <= (w / h) <= 1.1) and (area_rect > 100):
 
@@ -177,15 +176,15 @@ def get_posicao_cpf_template(template_alinhado):
     divide = cv.divide(cinza, borrada, scale=255)
     adapt_thresh = cv.adaptiveThreshold(divide, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 15, 2)
 
-    cnts, _ = cv.findContours(adapt_thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    for c in cnts:
+    contornos, _ = cv.findContours(adapt_thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    for contorno in contornos:
 
-        peri = cv.arcLength(c, True)
+        peri = cv.arcLength(contorno, True)
         # approx = cv.approxPolyDP(c, 0.01 * peri, True)
-        area = cv.contourArea(c)
+        area = cv.contourArea(contorno)
 
         ### Arrumar aqui
-        (x, y), raio = cv.minEnclosingCircle(c)
+        (x, y), raio = cv.minEnclosingCircle(contorno)
 
         if (300 < area < 500) and raio < 15:
 
