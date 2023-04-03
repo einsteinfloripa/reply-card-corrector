@@ -7,31 +7,33 @@ from auxilio.variaveis import (dicionario_simulinho as ds,
                                posicao_cpf)
 
 
-def sort_contornos(lista_contornos, alternativas = ds["Caixas"]["Alternativas"], cpf = False):
+def sort_contornos(lista_contornos, has_cpf):
     lista_final = []
+    alternativas = ds["Caixas"]["Alternativas"]
+    ordenar_direcao_x = lambda x: x[0]
+    ordernar_direcao_y = lambda y: y[1]
 
     # Região CPF
-    if cpf == True:
-        lista_ordenada_x = sorted(lista_contornos, key = lambda x: x[0])
+    if has_cpf:
+        lista_ordenada_x = sorted(lista_contornos, key = ordenar_direcao_x)
         for digito, coluna in enumerate(np.arange(0, len(lista_ordenada_x), 10)):
-            print(digito, coluna)
             lista_ordenada_y = sorted(lista_ordenada_x[coluna:coluna + 10],
-                                      key = lambda y: y[1])
+                                      key = ordernar_direcao_y)
             lista_final.append(lista_ordenada_y)
 
     # Região Caixas
-    elif cpf == False:
+    else:
         lista_ordenada_y = sorted(lista_contornos, key = lambda y: y[1])
         for questao, centro in enumerate(np.arange(0, len(lista_ordenada_y), alternativas)):
             lista_ordenada_x = sorted(lista_ordenada_y[centro:centro + alternativas],
-                                      key = lambda x: x[0])
+                                      key = ordenar_direcao_x)
             lista_final.append(lista_ordenada_x)
 
     return lista_final
 
 
-def ordenar_cordenadas(pts):
-    pts_array = np.array(pts, dtype = "float32")
+def ordenar_cordenadas(pontos):
+    pts_array = np.array(pontos, dtype = "float32")
     rect = np.zeros((4, 2), dtype = "float32")
 
     soma = pts_array.sum(axis = 1)
@@ -80,8 +82,8 @@ def new_coordinates_after_resize_img(original_size, new_size, original_coordinat
     return (x, y)
 
 def get_novas_posicoes(template, folha, posicoes, raio):
-
     novas_posicoes = []
+
     for caixa in posicoes:
         for linha in caixa:
             nova_posicao_linha = []
@@ -102,8 +104,8 @@ def verificar_circulo(img, mask, coordenada):
         #print("NÃO") # debug
         return False
 
-def get_respostas(img1, lista_posicoes, raio):
-    img = img1.copy()
+def get_respostas(img_1, lista_posicoes, raio):
+    img = img_1.copy()
     lista_respostas = []
 
     for linha in lista_posicoes:
@@ -111,13 +113,13 @@ def get_respostas(img1, lista_posicoes, raio):
         for coordenada in linha:
             mask = np.zeros(img.shape[:2], dtype=np.uint8)
             mask = cv.circle(mask, coordenada, raio-2, 255, -1)
-            masked = cv.bitwise_and(img, img, mask = mask)
-            verificacao = verificar_circulo(img, masked, coordenada)
+            masked_image = cv.bitwise_and(img, img, mask = mask)
+            verificacao = verificar_circulo(img, masked_image, coordenada)
             lista_resposta_alternativa.append(verificacao)
 
         if sum(lista_resposta_alternativa) != 1:
             lista_respostas.append('')
-            print("Vazio/dupla marcação")
+            # print("Vazio/dupla marcação")
         else:
             index = lista_resposta_alternativa.index(True)
             resposta = alternativas[index]
@@ -219,14 +221,13 @@ def get_cpf(img1, lista_posicoes, raio):
     img = img1.copy()
     cpf_aluno = []
 
-
     for coluna in lista_posicoes:
         lista_digito_cpf = []
         for coordenada in coluna:
             mask = np.zeros(img.shape[:2], dtype=np.uint8)
             mask = cv.circle(mask, coordenada, raio-2, 255, -1)
-            masked = cv.bitwise_and(img, img, mask = mask)
-            verificacao = verificar_circulo(img, masked, coordenada)
+            masked_image = cv.bitwise_and(img, img, mask = mask)
+            verificacao = verificar_circulo(img, masked_image, coordenada)
             lista_digito_cpf.append(verificacao)
 
         if True in lista_digito_cpf:

@@ -42,12 +42,12 @@ for pasta in paths_pastas:
         novas_posicoes = get_novas_posicoes(template, img, posicao_respostas_template, raio)
 
         # CPF
-        cinza1 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        borrada1 = cv.GaussianBlur(cinza1, (9, 9), 0)
-        thresh1 = cv.threshold(borrada1, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
-        kernel1 = cv.getStructuringElement(cv.MORPH_ELLIPSE, (17,17))
-        morph1 = cv.morphologyEx(thresh1, cv.MORPH_OPEN, kernel1)
-        img_cpf = morph1
+        cinza_cpf = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        borrada_cpf = cv.GaussianBlur(cinza_cpf, (9, 9), 0)
+        thresh_cpf = cv.threshold(borrada_cpf, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
+        kernel_cpf = cv.getStructuringElement(cv.MORPH_ELLIPSE, (17,17))
+        morph_cpf = cv.morphologyEx(thresh_cpf, cv.MORPH_OPEN, kernel_cpf)
+        img_cpf = morph_cpf
 
         lista_cpf_aluno = get_cpf(img_cpf, nova_posicoes_cpf, raio_cpf)
         cpf_aluno = ''.join([digito for digito in lista_cpf_aluno])
